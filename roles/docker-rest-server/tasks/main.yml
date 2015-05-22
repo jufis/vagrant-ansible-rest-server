@@ -1,0 +1,13 @@
+---  
+  - name: "Update hosts file for docker-registry info"
+    lineinfile: dest=/etc/hosts regexp='.*{{ docker_registry_name }}$' line="{{ docker_registry_ip }} {{docker_registry_name}}" state=present
+  - name: "Pull docker-rest-server"
+    environment: 
+      DOCKER_HOST: "{{ docker_host }}"
+    shell: "docker pull {{ docker_registry_location }}/{{ docker_repository }}/{{ docker_application_name }}:{{ git_tag }}"
+  - name: "Run docker-rest-server in daemon mode, use docker ps to check that is running"
+    environment: 
+      DOCKER_HOST: "{{ docker_host }}"
+    shell: "docker run -d -p {{ expose_port }}:{{ expose_port }} {{ docker_registry_location }}/{{ docker_repository }}/{{ docker_application_name }}:{{ git_tag }}"
+  - name: "Waiting for port exposure..."
+    wait_for: port="{{ expose_port}}" delay=3
