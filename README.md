@@ -8,25 +8,42 @@ Please install the following packages to your local linux environment:
 
 <pre>
 yum install vagrant
-yum install ansible
 yum install VirtualBox
-yum install python-docker-py
+yum install cowsay.noarch
 <pre>
+
+##Install latest ansible
+
+Latest Ansible uses a2x which you can find on if you install the following package:
+
+<pre>
+sudo yum install first this one : asciidoc-8.6.8-2.fc20.noarch
+</pre>
+
+Build altest ansible as follows:
+
+<pre>
+git clone git://github.com/ansible/ansible.git --recursive
+cd ./ansible
+make rpm
+sudo rpm -Uvh ./rpmbuild/ansible-*.noarch.rpm
+</pre>
 
 ##VirtualBox Operating System
 
-CentOS 7 64-bit
+Latest fedora rawhide 64-bit bleeding edge OS custom build as of MAY 2015 :)
 
 ##Box Location
 
-https://github.com/holms/vagrant-centos7-box/releases/download/7.1.1503.001/CentOS-7.1.1503-x86_64-netboot.box
+https://github.com/jufis/vagrant-rawhide-box
 
 ##Vagrant version
 
 >$ vagrant --version
 
 <pre>
-Vagrant 1.7.2
+ansible 2.0.0
+  configured module search path = None
 </pre>
 
 ##Ansible version
@@ -44,5 +61,5 @@ ansible 1.9.1
 You need to edit the following to match your environment:
 
 1. Vagrantfile
-2. docker-rest-server.yml
-3. roles/docker-rest-server/vars/main.yml
+2. docker-rest-client.yml
+3. roles/docker-rest-client/vars/main.yml

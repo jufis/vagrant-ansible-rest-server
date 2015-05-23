@@ -1,13 +1,25 @@
 ---  
   - name: "Update hosts file for docker-registry info"
     lineinfile: dest=/etc/hosts regexp='.*{{ docker_registry_name }}$' line="{{ docker_registry_ip }} {{docker_registry_name}}" state=present
-  - name: "Pull docker-rest-server"
-    environment: 
-      DOCKER_HOST: "{{ docker_host }}"
-    shell: "docker pull {{ docker_registry_location }}/{{ docker_repository }}/{{ docker_application_name }}:{{ git_tag }}"
-  - name: "Run docker-rest-server in daemon mode, use docker ps to check that is running"
-    environment: 
-      DOCKER_HOST: "{{ docker_host }}"
-    shell: "docker run -d -p {{ expose_port }}:{{ expose_port }} {{ docker_registry_location }}/{{ docker_repository }}/{{ docker_application_name }}:{{ git_tag }}"
+  - name: "Update hosts file for docker server tls verification on localhost"
+    lineinfile: dest=/etc/hosts regexp='.*{{ docker_server }}$' line="127.0.0.1 {{docker_server}}" state=present
+  - hostname: name=client.jufis.net
+  - lineinfile: dest=~/.bashrc regexp='^export DOCKER_HOST.*' line="export DOCKER_HOST={{ docker_host }}" state=present
+    sudo: false
+  - lineinfile: dest=~/.bashrc regexp='^export DOCKER_TLS_VERIFY.*' line="export DOCKER_TLS_VERIFY=1" state=present
+    sudo: false
+  - name: "Pull and Run docker-rest-server"
+    docker:
+      docker_api_version: "1.19"
+      docker_url: "https://localhost:2376"
+      image: "{{ docker_registry_location }}/{{ docker_repository }}/{{ docker_application_name }}:{{ git_tag }}"
+      insecure_registry: true
+      use_tls: verify
+      tls_ca_cert: "/root/.docker/ca.pem"
+      tls_client_cert: "/root/.docker/cert.pem"
+      tls_client_key: "/root/.docker/key.pem"
+      tls_hostname: "docker.jufis.net"
+      state: reloaded
+      pull: always
   - name: "Waiting for port exposure..."
     wait_for: port="{{ expose_port}}" delay=3
