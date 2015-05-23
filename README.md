@@ -12,6 +12,18 @@ yum install VirtualBox
 yum install cowsay.noarch
 <pre>
 
+Every time ansible strikes a cow will tell you what's going on:
+
+<pre> _________________________________________________ 
+< TASK: xxxxx | install required  packages       >
+ ------------------------------------------------- 
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+</pre>
+
 ##Install latest ansible
 
 Latest Ansible uses a2x which you can find on if you install the following package:
