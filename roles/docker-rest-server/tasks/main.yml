@@ -3,7 +3,7 @@
     lineinfile: dest=/etc/hosts regexp='.*{{ docker_registry_name }}$' line="{{ docker_registry_ip }} {{docker_registry_name}}" state=present
   - name: "Update hosts file for docker server tls verification on localhost"
     lineinfile: dest=/etc/hosts regexp='.*{{ docker_server }}$' line="127.0.0.1 {{docker_server}}" state=present
-  - hostname: name=client.jufis.net
+  - hostname: name=server.jufis.net
   - lineinfile: dest=~/.bashrc regexp='^export DOCKER_HOST.*' line="export DOCKER_HOST={{ docker_host }}" state=present
     sudo: false
   - lineinfile: dest=~/.bashrc regexp='^export DOCKER_TLS_VERIFY.*' line="export DOCKER_TLS_VERIFY=1" state=present
@@ -11,14 +11,16 @@
   - name: "Pull and Run docker-rest-server"
     docker:
       docker_api_version: "1.19"
-      docker_url: "https://localhost:2376"
+      docker_url: "https://{{docker_server}}:2376"
       image: "{{ docker_registry_location }}/{{ docker_repository }}/{{ docker_application_name }}:{{ git_tag }}"
       insecure_registry: true
       use_tls: verify
       tls_ca_cert: "/root/.docker/ca.pem"
       tls_client_cert: "/root/.docker/cert.pem"
       tls_client_key: "/root/.docker/key.pem"
-      tls_hostname: "docker.jufis.net"
+      tls_hostname: "{{docker_server}}"
+      ports:
+      - "{{ expose_port }}:{{ expose_port }}"
       state: reloaded
       pull: always
   - name: "Waiting for port exposure..."
